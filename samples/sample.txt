@@ -1,0 +1,6 @@
+DocFlow TXT 샘플
+
+이 파일은 plain text 표시 기능을 확인하기 위한 샘플입니다.
+
+앱을 실행한 뒤 samples 폴더를 선택하면 왼쪽 목록에 이 파일과 sample.md가 표시됩니다.
+TXT 파일은 원문 보기로 표시되며, Markdown 렌더링은 적용되지 않습니다.
