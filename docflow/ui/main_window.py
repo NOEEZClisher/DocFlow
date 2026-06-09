@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 
 from docflow.converters import load_document
 from docflow.core.document_model import Document, DocumentError, UnsupportedFileTypeError
-from docflow.core.exporter import export_documents, save_document_as_markdown
+from docflow.core.exporter import export_documents, save_document_as_markdown, write_export_report
 from docflow.core.file_scanner import FolderScanError, scan_documents
 from docflow.ui.reader_widget import ReaderWidget
 
@@ -222,6 +222,12 @@ class MainWindow(QMainWindow):
             return
 
         summary = export_documents(file_paths, self._output_folder)
+        try:
+            report_path = write_export_report(summary, self._output_folder)
+            self._log(f"저장 결과 리포트 생성: {report_path.name}")
+        except OSError as exc:
+            self._log(f"저장 결과 리포트 생성 실패: {exc}")
+
         for failure in summary.failures:
             self._log(f"저장 실패: {failure.source_path.name} - {failure.message}")
         self._log(f"전체 Markdown 저장 완료: 성공 {summary.success_count}개, 실패 {summary.failure_count}개")

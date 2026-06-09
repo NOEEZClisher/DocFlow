@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 from docflow.core.document_model import Document, DocumentLoadError
-from docflow.core.exporter import export_documents, markdown_filename, save_document_as_markdown
+from docflow.core.exporter import (
+    REPORT_COLUMNS,
+    export_documents,
+    markdown_filename,
+    save_document_as_markdown,
+    write_export_report,
+)
 
 
 def test_markdown_filename_replaces_extension_with_md() -> None:
@@ -51,3 +58,45 @@ def test_export_documents_continues_after_failure(tmp_path: Path) -> None:
     assert summary.failures[0].source_path == bad
     assert (output_folder / "good-a.md").read_text(encoding="utf-8") == "saved: good-a.txt"
     assert (output_folder / "good-b.md").read_text(encoding="utf-8") == "saved: good-b.md"
+
+
+def test_write_export_report_creates_utf8_sig_csv_with_success_and_failure_rows(tmp_path: Path) -> None:
+    good = tmp_path / "성공.docx"
+    bad = tmp_path / "실패.pptx"
+
+    def load_for_test(path: Path) -> Document:
+        if path == bad:
+            raise DocumentLoadError("읽기 실패")
+        return Document(path=path, kind="test", raw_text="변환 결과")
+
+    output_folder = tmp_path / "out"
+    summary = export_documents((good, bad), output_folder, loader=load_for_test)
+
+    report_path = write_export_report(summary, output_folder)
+
+    assert report_path == output_folder / "export_report.csv"
+    assert report_path.read_bytes().startswith(b"\xef\xbb\xbf")
+
+    with report_path.open("r", newline="", encoding="utf-8-sig") as report_file:
+        reader = csv.DictReader(report_file)
+        rows = list(reader)
+
+    assert reader.fieldnames == list(REPORT_COLUMNS)
+    assert rows == [
+        {
+            "source_name": "성공.docx",
+            "source_path": str(good),
+            "output_name": "성공.md",
+            "output_path": str(output_folder / "성공.md"),
+            "success": "true",
+            "error_message": "",
+        },
+        {
+            "source_name": "실패.pptx",
+            "source_path": str(bad),
+            "output_name": "",
+            "output_path": "",
+            "success": "false",
+            "error_message": "읽기 실패",
+        },
+    ]
