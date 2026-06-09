@@ -84,6 +84,17 @@ def test_pptx_converter_sanitizes_line_breaks_and_pipe_characters(tmp_path: Path
     assert document.raw_text == "## 슬라이드 1\n\n첫 줄\n\n둘째 줄 \\| 확인"
 
 
+def test_pptx_converter_keeps_common_sentence_punctuation(tmp_path: Path) -> None:
+    presentation = Presentation()
+    slide = presentation.slides.add_slide(presentation.slide_layouts[6])
+    add_textbox(slide, "마감일: 6.10! 다시 제출-확인.")
+    path = save_presentation(tmp_path / "punctuation.pptx", presentation)
+
+    document = PptxConverter().convert(path)
+
+    assert document.raw_text == "## 슬라이드 1\n\n마감일: 6.10! 다시 제출-확인."
+
+
 def test_registry_selects_pptx_converter_for_pptx_files() -> None:
     converter = default_registry.get_converter(Path("slides.pptx"))
 

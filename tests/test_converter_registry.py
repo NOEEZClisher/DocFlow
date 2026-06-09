@@ -55,4 +55,4 @@ def test_scanner_uses_registry_supported_extensions(tmp_path: Path, monkeypatch:
 
 
 def test_file_scanner_supported_extensions_are_registry_based() -> None:
-    assert file_scanner.SUPPORTED_EXTENSIONS == default_registry.supported_extensions()
+    assert file_scanner.supported_extensions() == default_registry.supported_extensions()

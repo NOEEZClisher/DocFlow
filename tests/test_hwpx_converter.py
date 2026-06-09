@@ -17,6 +17,14 @@ def write_hwpx(path: Path, section_xml: str, section_name: str = "Contents/secti
     return path
 
 
+def write_hwpx_sections(path: Path, sections: dict[str, str]) -> Path:
+    with ZipFile(path, "w") as archive:
+        archive.writestr("mimetype", "application/hwp+zip")
+        for name, xml in sections.items():
+            archive.writestr(name, xml)
+    return path
+
+
 def test_hwpx_converter_extracts_paragraphs_from_section_xml(tmp_path: Path) -> None:
     path = write_hwpx(
         tmp_path / "paragraphs.hwpx",
@@ -71,6 +79,45 @@ def test_hwpx_converter_extracts_tables_with_namespaces(tmp_path: Path) -> None:
         ]
     )
     assert "<table>" in document.rendered_html
+
+
+def test_hwpx_converter_merges_multiple_sections_in_sorted_order(tmp_path: Path) -> None:
+    path = write_hwpx_sections(
+        tmp_path / "sections.hwpx",
+        {
+            "Contents/section2.xml": """
+            <hp:sec xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">
+              <hp:p><hp:run><hp:t>세 번째 section</hp:t></hp:run></hp:p>
+            </hp:sec>
+            """,
+            "Contents/section1.xml": """
+            <hp:sec xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">
+              <hp:p><hp:run><hp:t>두 번째 section</hp:t></hp:run></hp:p>
+            </hp:sec>
+            """,
+        },
+    )
+
+    document = HwpxConverter().convert(path)
+
+    assert document.raw_text == "두 번째 section\n\n세 번째 section"
+
+
+def test_hwpx_converter_ignores_empty_paragraphs(tmp_path: Path) -> None:
+    path = write_hwpx(
+        tmp_path / "empty-paragraph.hwpx",
+        """
+        <hp:sec xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">
+          <hp:p />
+          <hp:p><hp:run><hp:t>내용 있는 문단</hp:t></hp:run></hp:p>
+          <hp:p><hp:run><hp:t>   </hp:t></hp:run></hp:p>
+        </hp:sec>
+        """,
+    )
+
+    document = HwpxConverter().convert(path)
+
+    assert document.raw_text == "내용 있는 문단"
 
 
 def test_hwpx_converter_raises_for_invalid_hwpx_file(tmp_path: Path) -> None:

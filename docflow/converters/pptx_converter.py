@@ -76,7 +76,7 @@ def _normalize_for_deduplication(text: str) -> str:
 
 
 def _escape_markdown_text(text: str) -> str:
-    markdown_chars = "\\`*_{}[]()#+-.!|"
+    markdown_chars = "\\`*_[]|"
     escaped = []
     for char in text:
         if char in markdown_chars:
