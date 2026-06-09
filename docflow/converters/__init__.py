@@ -2,23 +2,18 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from docflow.core.document_model import Document, UnsupportedFileTypeError
+from docflow.core.document_model import Document
+
+from .registry import ConverterRegistry, default_registry
 
 
 def load_document(path: Path) -> Document:
     """Load a supported file through its converter."""
-    suffix = path.suffix.lower()
-    if suffix == ".txt":
-        from .txt_converter import TxtConverter
-
-        return TxtConverter().convert(path)
-
-    if suffix in {".md", ".markdown"}:
-        from .md_converter import MarkdownConverter
-
-        return MarkdownConverter().convert(path)
-
-    raise UnsupportedFileTypeError(f"지원하지 않는 파일 형식입니다: {path.suffix or path.name}")
+    return default_registry.load_document(path)
 
 
-__all__ = ["load_document"]
+def supported_extensions() -> frozenset[str]:
+    return default_registry.supported_extensions()
+
+
+__all__ = ["ConverterRegistry", "default_registry", "load_document", "supported_extensions"]

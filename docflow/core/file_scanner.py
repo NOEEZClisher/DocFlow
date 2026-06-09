@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from docflow.converters import default_registry
 
-SUPPORTED_EXTENSIONS = frozenset({".txt", ".md", ".markdown"})
+SUPPORTED_EXTENSIONS = default_registry.supported_extensions()
 
 
 class FolderScanError(Exception):
@@ -18,11 +19,12 @@ def scan_documents(folder: Path) -> list[Path]:
     if not folder.is_dir():
         raise NotADirectoryError(f"폴더가 아닙니다: {folder}")
 
+    supported_extensions = default_registry.supported_extensions()
     try:
         files = [
             path
             for path in folder.rglob("*")
-            if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
+            if path.is_file() and path.suffix.lower() in supported_extensions
         ]
     except OSError as exc:
         raise FolderScanError(f"폴더를 탐색할 수 없습니다: {folder}") from exc
