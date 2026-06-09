@@ -7,6 +7,7 @@ from docflow.core.document_model import Document, UnsupportedFileTypeError
 
 from .base import DocumentConverter
 from .docx_converter import DocxConverter
+from .hwpx_converter import HwpxConverter
 from .md_converter import MarkdownConverter
 from .pptx_converter import PptxConverter
 from .txt_converter import TxtConverter
@@ -46,5 +47,6 @@ default_registry = ConverterRegistry(
         DocxConverter(),
         XlsxConverter(),
         PptxConverter(),
+        HwpxConverter(),
     )
 )

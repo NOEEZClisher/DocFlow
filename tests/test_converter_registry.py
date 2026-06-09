@@ -39,7 +39,7 @@ def test_registry_selects_markdown_converter_for_markdown_files() -> None:
 
 def test_registry_raises_for_unsupported_extension() -> None:
     with pytest.raises(UnsupportedFileTypeError):
-        default_registry.get_converter(Path("submission.hwpx"))
+        default_registry.get_converter(Path("submission.pdf"))
 
 
 def test_scanner_uses_registry_supported_extensions(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
