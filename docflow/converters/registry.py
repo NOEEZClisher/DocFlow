@@ -9,6 +9,7 @@ from .base import DocumentConverter
 from .docx_converter import DocxConverter
 from .md_converter import MarkdownConverter
 from .txt_converter import TxtConverter
+from .xlsx_converter import XlsxConverter
 
 
 class ConverterRegistry:
@@ -42,5 +43,6 @@ default_registry = ConverterRegistry(
         TxtConverter(),
         MarkdownConverter(),
         DocxConverter(),
+        XlsxConverter(),
     )
 )

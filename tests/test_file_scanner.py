@@ -15,11 +15,12 @@ def test_scan_documents_finds_only_supported_extensions(tmp_path: Path) -> None:
     touch(tmp_path / "rubric.md")
     touch(tmp_path / "notes.markdown")
     touch(tmp_path / "archive.docx")
+    touch(tmp_path / "scores.xlsx")
     touch(tmp_path / "image.png")
 
     found = {path.name for path in scan_documents(tmp_path)}
 
-    assert found == {"lesson.txt", "rubric.md", "notes.markdown", "archive.docx"}
+    assert found == {"lesson.txt", "rubric.md", "notes.markdown", "archive.docx", "scores.xlsx"}
 
 
 def test_scan_documents_searches_subfolders_recursively(tmp_path: Path) -> None:
@@ -40,7 +41,6 @@ def test_scan_documents_ignores_unsupported_extensions(tmp_path: Path) -> None:
     touch(tmp_path / "supported.TXT")
     touch(tmp_path / "ignore.hwpx")
     touch(tmp_path / "ignore.pptx")
-    touch(tmp_path / "ignore.xlsx")
 
     found = [path.name for path in scan_documents(tmp_path)]
 
